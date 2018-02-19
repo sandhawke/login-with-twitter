@@ -17,8 +17,10 @@
     "request": "^2.79.0"
   },
   "devDependencies": {
+    "express": "^4.15.3",
+    "opn": "^5.1.0",
     "standard": "*",
-    "tape": "^4.0.0"
+    "tape": "^4.7.0"
   },
   "homepage": "https://github.com/feross/login-with-twitter",
   "keywords": [

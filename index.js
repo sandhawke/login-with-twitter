@@ -3,6 +3,7 @@ const request = require('request')
 
 const TW_REQ_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
 const TW_AUTH_URL = 'https://api.twitter.com/oauth/authenticate'
+const TW_AUTHZ_URL = 'https://api.twitter.com/oauth/authorize'
 const TW_ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
 
 class LoginWithTwitter {
@@ -21,9 +22,14 @@ class LoginWithTwitter {
     this.consumerKey = opts.consumerKey
     this.consumerSecret = opts.consumerSecret
     this.callbackUrl = opts.callbackUrl
+    this.tokenSecrets = {}
   }
 
-  login (cb) {
+  authorize (cb) {
+    return this.login(cb, TW_AUTHZ_URL)
+  }
+
+  login (cb, authUrl = TW_AUTH_URL) {
     const oauth = {
       consumer_key: this.consumerKey,
       consumer_secret: this.consumerSecret,
@@ -44,13 +50,16 @@ class LoginWithTwitter {
       if (callbackConfirmed !== 'true') return cb(err)
 
       // Redirect visitor to this URL to authorize the app
-      const url = `${TW_AUTH_URL}?${querystring.stringify({ oauth_token: token })}`
+      const url = `${authUrl}?${querystring.stringify({ oauth_token: token })}`
 
-      cb(null, tokenSecret, url)
+      // Remember the secret for this token, for the callback
+      this.tokenSecrets[token] = tokenSecret
+
+      return cb(null, url)
     })
   }
 
-  callback (params, tokenSecret, cb) {
+  callback (params, cb) {
     const {
       oauth_token: token,
       oauth_verifier: verifier
@@ -66,9 +75,13 @@ class LoginWithTwitter {
     if (!params.oauth_verifier || typeof params.oauth_verifier !== 'string') {
       cb(new Error('Invalid or missing `oauth_verifier` parameter for login callback'))
     }
+
+    const tokenSecret = this.tokenSecrets[token]
     if (!tokenSecret || typeof tokenSecret !== 'string') {
-      cb(new Error('Invalid or missing `tokenSecret` argument for login callback'))
+      cb(new Error('No stored tokenSecret for this token'))
+      return
     }
+    delete this.tokenSecrets[token]
 
     const oauth = {
       consumer_key: this.consumerKey,
