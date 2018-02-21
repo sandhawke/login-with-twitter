@@ -38,6 +38,7 @@ class LoginWithTwitter {
 
     // Get a "request token"
     request.post({ url: TW_REQ_TOKEN_URL, oauth: oauth }, (err, _, body) => {
+      console.log('request.post resulted in', err, body)
       if (err) return cb(err)
 
       const {
@@ -55,6 +56,7 @@ class LoginWithTwitter {
       // Remember the secret for this token, for the callback
       this.tokenSecrets[token] = tokenSecret
 
+      console.log('cb to url', url)
       return cb(null, url)
     })
   }
