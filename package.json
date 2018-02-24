@@ -1,17 +1,10 @@
 {
-  "name": "login-with-twitter",
-  "description": "Login with Twitter. OAuth without the nonsense.",
+  "name": "twauthorize",
+  "description": "Fork of Feross' login-with-twitter adding authorization",
   "version": "1.0.1",
-  "author": {
-    "name": "Feross Aboukhadijeh",
-    "email": "feross@feross.org",
-    "url": "http://feross.org/"
-  },
-  "browser": {
-    "unzip-response": false
-  },
+  "author": "Sandro Hawke <sandro@hawke.org>",
   "bugs": {
-    "url": "https://github.com/feross/login-with-twitter/issues"
+    "url": "https://github.com/sandhawke/twauthorize/issues"
   },
   "dependencies": {
     "request": "^2.79.0"
@@ -22,7 +15,7 @@
     "standard": "*",
     "tape": "^4.7.0"
   },
-  "homepage": "https://github.com/feross/login-with-twitter",
+  "homepage": "https://github.com/sandhawke/twauthorize",
   "keywords": [
     "login",
     "twitter",
@@ -39,7 +32,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/feross/login-with-twitter.git"
+    "url": "git://github.com/sandhawke/twauthorize.git"
   },
   "scripts": {
     "test": "standard && tape test/*.js"

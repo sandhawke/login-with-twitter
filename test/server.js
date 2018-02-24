@@ -4,9 +4,8 @@ const test = require('tape')
 const http = require('http')
 const express = require('express')
 const request = require('request')
-// const opn = require('opn')
-const LoginWithTwitter = require('..')
-const config = require('./.secret')
+const TwAuth = require('..')
+const config = require('../.secret')
 
 process.on('unhandledRejection', (reason, p) => {
   console.error(process.argv[1], 'Unhandled Rejection at: Promise', p, 'reason:', reason)
@@ -20,9 +19,14 @@ function start (serverConfig = {}, cb) {
   const server = http.createServer(app)
   server.listen(port, () => {
     const a = server.address()
-    if (a !== port) console.error('listening on port', a)
+    if (a.port !== port) console.error('listening on port', a)
+    let portcode = ''
+    if (a.port !== 80) portcode = ':' + a.port
+    server.baseUrl = 'http://127.0.0.1' + portcode
+    config.callbackUrl = server.baseUrl + '/twitter/callback'
+    server.authUrl = server.baseUrl + '/twitter/authorize'
 
-    const tw = new LoginWithTwitter(config)
+    const tw = new TwAuth(config)
 
     app.get('/twitter/login', (req, res) => {
       tw.login((err, url) => {
@@ -32,22 +36,23 @@ function start (serverConfig = {}, cb) {
     })
 
     app.get('/twitter/authorize', (req, res) => {
-      console.log('access to /authorize')
+      // console.log('access to /authorize')
       tw.authorize((err, url) => {
         if (err) throw Error(err)
-        console.log('result', [err, url])
+        // console.log('result', [err, url])
         res.redirect(url)
       })
     })
 
     app.get('/twitter/callback', (req, res) => {
-      console.log('callback hit', req.url)
+      // console.log('callback hit', req.url)
       tw.callback(req.query, (err, auth) => {
         if (err) throw Error(err)
-        console.log('auth info', auth)
-        res.writeHead(200, {'Content-type': "text/plain"});
-        res.write('Twitter login successful, your receipts is 30339494')
+        // console.log('auth info', auth)
+        res.writeHead(200, {'Content-type': 'text/plain'})
+        res.write('Twitter login successful.  See console')
         res.end()
+        if (serverConfig.onlogin) serverConfig.onlogin(auth)
         // res.status(201).end()
       })
     })
@@ -68,7 +73,7 @@ test('can I contact myself?', t => {
       })
     })
     const url = config.callbackUrl.replace('/twitter/callback', '/twitter/close')
-    console.log('trying', url)
+    // console.log('trying', url)
     request.get(url, (err) => {
       if (err) throw Error(err)
     })
@@ -76,16 +81,21 @@ test('can I contact myself?', t => {
 })
 
 test('basic twitter auth', t => {
-  t.plan(1)
-  start({port: 4042}, (server, app) => {
-    /* server.close(err => {
+  t.plan(2)
+  let server
+  start({port: 4042, onlogin: login}, (serverArg, app) => {
+    server = serverArg
+    console.error('\n\nIn browser, visit:\n\n   ==>    ' + server.authUrl)
+  })
+
+  function login (auth) {
+    console.error('login succeeded:\n' + JSON.stringify(auth, null, 2))
+    t.pass('user authorized')
+    t.comment('Done with browser.  Shutting down test server...')
+    server.close(err => {
       if (err) throw Error(err)
       t.pass('server closed')
       t.end()
     })
-    */
-    const url = config.callbackUrl.replace('/twitter/callback', '/twitter/authorize')
-    console.log('you have 300 seconds to visit', url)
-    setTimeout(() => { t.pass(); t.end() }, 300)
-  })
+  }
 })
