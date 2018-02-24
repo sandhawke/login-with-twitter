@@ -6,7 +6,7 @@ const TW_AUTH_URL = 'https://api.twitter.com/oauth/authenticate'
 const TW_AUTHZ_URL = 'https://api.twitter.com/oauth/authorize'
 const TW_ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
 
-class LoginWithTwitter {
+class TwAuth {
   constructor (opts) {
     // Check that required options exist
     if (!opts.consumerKey || typeof opts.consumerKey !== 'string') {
@@ -115,4 +115,7 @@ class LoginWithTwitter {
   }
 }
 
-module.exports = LoginWithTwitter
+// do the pop-up a login window thing?  cmd line, etc.
+// TwAuth.prompt = async function () { ... }
+
+module.exports = TwAuth
