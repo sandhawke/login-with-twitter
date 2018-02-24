@@ -13,32 +13,17 @@ smaller and easier for me to understand, for now.
 npm install twauthorize
 ```
 
-## usage
+## Usage
 
-Set up two routes on your web sever. We'll call them `/twitter` and
-`/twitter/callback` but they can be named anything.
+For now, see the test/server.js
 
-Initialize this module:
-
-```js
-const TwAuth = require('twauthorize')
-
-const tw = TwAuth({
-  consumerKey: '<your consumer key>',
-  consumerSecret: '<your consumer secret>',
-  callbackUrl: 'https://example.com/twitter/callback'
-})
-```
-
-For more, see the test.
-
-## testing
+## Testing
 
 ### Step 1. Register a Twitter App
 
 If you don't already have one, go to https://apps.twitter.com/app/new
 
-The name needs to be unique across Twitter, and the callback URL can be anything, eg https://example.com/twitter/callback.  It's not actually used, because we override it later.
+The name needs to be unique across Twitter, and the callback URL can be anything, eg https://example.com/twitter/callback.  It's not actually used, because we override it at runtime.
 
 Then click on then "Keys and Access Tokens", to get the "Consumer Key (API Key)" and "Consumer Secret (API Secret)".
 
@@ -51,6 +36,9 @@ cat <<_END > .secret.json
    "consumerSecret": "HjlcC46C2h242342534534545EPzEcTRIndBEusZ5aIgYgEmHmmu",
 }
 _END
+
+... or otherwise make sure they get to our constructor.
+
 ```
 
 ### Step 2.
@@ -61,7 +49,9 @@ Now you can run the tests:
 npm test
 ```
 
-then visit the displayed URL in a browser and login.
+It'll tell you to visit a URL.  Do that.  You should see Twitter
+asking if it's okay to authorize your app.  Say yes and the test
+should complete successfully.
 
 ## license
 
